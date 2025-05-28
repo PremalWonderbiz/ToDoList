@@ -21,12 +21,12 @@ let tasks = [];
 
 //On Load Things
 //function to get a formatted date
-function formatDate(dateString){
-    const date = new Date(dateString); 
+function formatDate(dateString) {
+    const date = new Date(dateString);
     const day = weekDays[date.getDay()];
     const month = monthsArr[date.getMonth()];
     const dateNumber = date.getDate();
-    
+
     return `${day}, ${month} ${dateNumber}`;
 }
 
@@ -35,7 +35,7 @@ const displayDate = formatDate(date);
 document.getElementById("todaysDate").innerText = displayDate
 
 //to refresh taskList to check whether its empty or not(based on this we will hide and display some divs in DOM)
-function refreshTaskList() {       
+function refreshTaskList() {
     const emptyListDiv = document.getElementById("emptyTaskContainer");
     const tasksCountToDisplay = document.getElementById("taskDisplayCount");
     if (tasks.length == 0) {
@@ -43,7 +43,7 @@ function refreshTaskList() {
         emptyListDiv.classList.remove("hidden");
         tasksCountToDisplay.classList.add("hidden");
     } else {
-        localStorage.setItem("tasks",JSON.stringify(tasks));
+        localStorage.setItem("tasks", JSON.stringify(tasks));
         tasksCountToDisplay.innerText = `Total Tasks : ${tasks.length} | Completed Tasks : ${completedTasksCount}`;
         emptyListDiv.classList.add("hidden");
         tasksCountToDisplay.classList.remove("hidden");
@@ -53,13 +53,13 @@ function refreshTaskList() {
 //to get data from localstorage initially if exists and add it into DOM
 function onLoad() {
     let localStorageData = localStorage.getItem("tasks");
-    if(localStorageData == null || localStorageData == ""){
+    if (localStorageData == null || localStorageData == "") {
         tasks = [];
         return;
     }
     tasks = JSON.parse(localStorageData);
-    
-    tasks.forEach( (task) => { 
+
+    tasks.forEach((task) => {
         task.status == "Pending" ? incompleteTasksCount++ : completedTasksCount++;
         addNewListItem(task);
     });
@@ -76,12 +76,12 @@ function addTask() {
     const inputValue = inputTask.value;
     if (inputValue != "") {
         let newId = tasks.length == 0 ? 0 : tasks[tasks.length - 1].id;
-        const newTask = { id : newId+1,code: `T${newId + 1}`, status : "Pending", date : date, task: inputValue };
+        const newTask = { id: newId + 1, code: `T${newId + 1}`, status: "Pending", date: date, task: inputValue };
         tasks.push(newTask);
         // alert("Task Added Successfully");
         const toastBootstrap = bootstrap.Toast.getOrCreateInstance(taskAddedSuceessToast)
         toastBootstrap.show();
-        inputTask.value ="";
+        inputTask.value = "";
         refreshTaskList();
         addNewListItem(newTask);
         incompleteTasksCount++;
@@ -111,12 +111,12 @@ function generateTaskHTML(newTask) {
     return `
     <div class="container d-flex flex-column flex-md-row">
          <div class="d-flex">
-            <input type="checkbox" class="form-check-input me-2" id="checkbox${newTask.id}" ${newTask.status=="Completed" ? "checked" : ""}>
-            <label class="${newTask.status=="Completed" ? "text-decoration-line-through text-secondary" : ""} form-check-label" for="checkbox${newTask.id}" id="label${newTask.id}">${newTask.task}</label>
+            <input type="checkbox" class="form-check-input me-2" id="checkbox${newTask.id}" ${newTask.status == "Completed" ? "checked" : ""}>
+            <label class="${newTask.status == "Completed" ? "text-decoration-line-through text-secondary" : ""} form-check-label" for="checkbox${newTask.id}" id="label${newTask.id}">${newTask.task}</label>
          </div>
          <div class="d-flex flex-row py-2 py-md-0 ms-md-auto"> 
              <a href="#" class="justify-self-end link-danger link-offset-2 link-underline-opacity-0 link-underline-opacity-100-hover float-end px-3">Delete</a>
-             <a href="#" class="${newTask.status=="Completed" ? "pe-none text-secondary" : ""} justify-self-end link-warning link-offset-2 link-underline-opacity-0 link-underline-opacity-100-hover float-end px-3" 
+             <a href="#" class="${newTask.status == "Completed" ? "pe-none text-secondary" : ""} justify-self-end link-warning link-offset-2 link-underline-opacity-0 link-underline-opacity-100-hover float-end px-3" 
                 role="button" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Edit</a>
          </div>  
     </div>
@@ -137,7 +137,7 @@ taskUL.addEventListener('change', (event) => {
         const status = li.querySelector(".taskStatus");
         const editLink = li.querySelector("a.link-warning");
         let index = tasks.findIndex(t => t.code == li.id);
-        
+
         if (event.target.checked) {
             editLink.classList.add("pe-none");
             editLink.classList.add("text-secondary");
@@ -172,50 +172,54 @@ taskUL.addEventListener('change', (event) => {
 //Edit and Delete Links on each task item click listener
 taskUL.addEventListener('click', (event) => {
     event.stopPropagation();
-    if (event.target.innerText != "Delete" && event.target.innerText != "Edit") 
+    if (event.target.innerText != "Delete" && event.target.innerText != "Edit")
         return;
     // console.log(event.target.innerText);
     if (event.target.innerText == "Delete") {
+        const confirmDelete = confirm("Are you sure you want to delete this task?");
+        if (!confirmDelete) return; // Stop execution if user cancels
+
         const li = event.target.closest("li");
         const checkbox = li.querySelector("input");
         const br = li.nextElementSibling;
-        // console.log(br);
         checkbox.checked ? completedTasksCount-- : incompleteTasksCount--;
+
         let index = tasks.findIndex(t => t.code == li.id);
         tasks.splice(index, 1);
         taskUL.removeChild(li);
         taskUL.removeChild(br);
-        const toastBootstrap = bootstrap.Toast.getOrCreateInstance(taskDeletedSuceessToast)
+
+        const toastBootstrap = bootstrap.Toast.getOrCreateInstance(taskDeletedSuceessToast);
         toastBootstrap.show();
-        // console.log(`Completed Tasks : ${completedTasksCount}, Incomplete Tasks : ${incompleteTasksCount}`);
-        refreshTaskList(); 
+
+        refreshTaskList();
     }
-    else if(event.target.innerText == "Edit"){
+    else if (event.target.innerText == "Edit") {
         const li = event.target.closest("li");
         const label = li.querySelector('label').textContent;
         const inputChange = document.getElementById("taskUpdate");
         inputChange.value = label;
-        inputChange.setAttribute("tCode",li.id);
+        inputChange.setAttribute("tCode", li.id);
     }
 });
 
 //Edit Task Modal Save Changes Button click Listener
-taskEditBtn.addEventListener("click", (event)=>{
+taskEditBtn.addEventListener("click", (event) => {
     const inputTaskChanges = document.getElementById("taskUpdate");
     const updateModal = bootstrap.Modal.getOrCreateInstance("#staticBackdrop");
     const tskCode = inputTaskChanges.getAttribute("tCode");
     let taskIndex = tasks.findIndex(t => t.code == tskCode);
 
     const inputLabelTask = document.getElementById(`label${tasks[taskIndex].id}`);
-    if(inputTaskChanges.value == ""){
+    if (inputTaskChanges.value == "") {
         const toastBootstrap = bootstrap.Toast.getOrCreateInstance(taskUpdateFailedToast)
         toastBootstrap.show();
-    }else{
+    } else {
         // console.log(inputTaskChanges.getAttribute("tid"));
-        if(taskIndex != -1){
+        if (taskIndex != -1) {
             tasks[taskIndex].task = inputTaskChanges.value;
             refreshTaskList();
-            inputLabelTask.textContent = inputTaskChanges.value;   
+            inputLabelTask.textContent = inputTaskChanges.value;
         }
         const toastBootstrap = bootstrap.Toast.getOrCreateInstance(taskUpdateSuccessToast)
         toastBootstrap.show();
