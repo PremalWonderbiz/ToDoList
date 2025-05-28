@@ -109,18 +109,18 @@
         <h1 class="text-center mt-2">To Do List</h1>
         <!-- Input Task Container  -->
         <div class="container">
-            <div class="row py-sm-2 row-gap-3">
+            <form class="row py-sm-2 row-gap-3" onsubmit="addTask()">
                 <div class="col-sm-1 col-lg-2"></div>
                 <div class="col-sm-7 col-lg-6">
                     <input type="text" class="form-control form-control-lg text-center" id="taskInput"
-                        placeholder="Enter New Task" />
+                        placeholder="Enter New Task" required minlength="3"/>
                 </div>
                 <div class="col-5 col-sm-3 col-lg-2 sm-mt-2 mx-auto">
-                    <button type="button" class="btn btn-lg btn-primary shadow-none w-100 mx-auto d-block mx-sm-0 "
-                        onclick="addTask()">Add</button>
+                    <button type="submit" class="btn btn-lg btn-primary shadow-none w-100 mx-auto d-block mx-sm-0 "
+                        >Add</button>
                 </div>
                 <div class="col-sm-1 col-lg-2"></div>
-            </div>
+            </form>
         </div>  
         <!-- Date Div  -->
         <div class="text-center mt-3">
